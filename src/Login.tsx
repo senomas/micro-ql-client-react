@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useContext } from "react";
 import { Formik } from "formik";
 import {
   FormControl,
@@ -7,19 +7,17 @@ import {
   Input,
   Button
 } from "@chakra-ui/core";
-import { login as doLogin } from "./lib";
+import { login as doLogin, getGraphqlError } from "./lib";
+import { AppContext } from "./App";
 
-interface Props {
-  handleToken: (newToken: string | null) => void;
-}
+export const Login: React.FC = () => {
+  const { updateAuth, updateError } = useContext(AppContext);
 
-export const Login: React.FC<Props> = ({ handleToken }) => {
   return (
     <div>
       <Formik
         initialValues={{ username: "admin", password: "dodol123" }}
         validate={(values: any) => {
-          console.log("VALIDATE", { values });
           const errors: any = {};
           if (!values.username) {
             errors.username = "Required";
@@ -32,13 +30,14 @@ export const Login: React.FC<Props> = ({ handleToken }) => {
         onSubmit={async (values: any, { setSubmitting }: any) => {
           console.log("LOGIN", values);
           try {
-            const res = await doLogin({}, values.username, values.password);
+            const res = await doLogin(values.username, values.password);
             console.log("TOKEN", { res });
-            handleToken(res.token);
-          } catch (err) {
+            updateAuth(res);
+            console.log("handleToken", { res });
+          } catch (error) {
+            const err = getGraphqlError(error);
             console.log("ERROR", { err });
-          } finally {
-            setSubmitting(false);
+            updateError(err);
           }
         }}
       >

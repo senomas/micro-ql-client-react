@@ -22,7 +22,7 @@ export const config = {
 
 export const ecdh = crypto.createECDH(config.curves);
 
-export async function login({ }, login: string, password: string) {
+export async function login(login: string, password: string) {
   ecdh.generateKeys();
   console.log("get server key");
   const auth: any = {
@@ -107,7 +107,6 @@ export async function login({ }, login: string, password: string) {
     }`,
     fetchPolicy: 'network-only'
   })).data.auth.login;
-  console.log("HERE", { loginRes });
   delete loginRes.__typename;
   const obj: any = jwt.decode(loginRes.token);
   return {
@@ -121,13 +120,12 @@ export async function login({ }, login: string, password: string) {
   };
 }
 
-export async function logout({ }) {
-  return (await client.query({
-    query: gql`
-    query logout {
+export async function logout() {
+  return (await client.mutate({
+    mutation: gql`
+    mutation logout {
       logout
-    }`,
-    fetchPolicy: 'network-only'
+    }`
   })).data.logout;
 }
 

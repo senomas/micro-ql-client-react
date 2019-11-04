@@ -1,5 +1,4 @@
-import React, { PropsWithChildren, useContext, useState } from "react";
-// import PropTypes from "prop-types";
+import React, { PropsWithChildren, useContext } from "react";
 import gql from "graphql-tag";
 import { useQuery } from "@apollo/react-hooks";
 import { Login } from "./Login";
@@ -32,15 +31,14 @@ const queryMe = gql`
 `;
 
 export const LoginCheck: React.FC<PropsWithChildren<any>> = ({ children }) => {
-  const appContext = useContext(AppContext);
-  const [token, handleToken] = useState<string | null>(appContext.token);
+  const { auth, updateAuth } = useContext(AppContext);
   const { loading, error, data } = useQuery(queryMe, {
     variables: {
-      ts: `${Math.floor(Date.now() / 5000)}`
+      ts: `${Math.floor(Date.now() / 5000)}-${auth ? auth.token : ''}`
     }
   });
 
-  console.log("RENDER LOGIN-CHECK", { appContext, loading, error, data });
+  console.log("RENDER LOGIN-CHECK", { loading, error, data });
 
   if (loading) {
     return <div>Loading...</div>;
@@ -50,28 +48,20 @@ export const LoginCheck: React.FC<PropsWithChildren<any>> = ({ children }) => {
     const err = getGraphqlError(error);
     if (err.code === "SessionExpiredError") {
       sessionStorage.clear();
-      appContext.token = null;
+      updateAuth(null);
+    } else if ((err.code = "InvalidClientKeyError")) {
+      sessionStorage.clear();
+      updateAuth(null);
     }
     console.log({ err, error });
     return <div>Error.</div>;
   }
 
   if (!data.me.name) {
-    const setToken = (newToken: string | null) => {
-      console.log("set");
-      if (appContext.token !== newToken) {
-        console.log("setNewToken", { appContext, newToken });
-        appContext.token = newToken;
-        handleToken(newToken);
-      } else {
-        console.log("ignore setToken", { appContext });
-      }
-    };
-
-    return <Login handleToken={setToken} />;
+    return <Login />;
   }
 
-  if (data.me.token.seq) {
+  if (data.me.token && data.me.token.seq) {
     sessionStorage.setItem("seq", data.me.token.seq);
   }
 
