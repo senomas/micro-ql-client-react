@@ -12,6 +12,7 @@
     "@types/node": "12.12.5",
     "@types/react": "16.9.11",
     "@types/react-dom": "16.9.3",
+    "@types/react-router-dom": "^5.1.2",
     "apollo-boost": "^0.4.4",
     "apollo-link-context": "^1.0.19",
     "emotion-theming": "^10.0.19",
@@ -20,6 +21,7 @@
     "jsonwebtoken": "^8.5.1",
     "react": "^16.11.0",
     "react-dom": "^16.11.0",
+    "react-router-dom": "^5.1.2",
     "react-scripts": "3.2.0",
     "typescript": "3.6.4"
   },

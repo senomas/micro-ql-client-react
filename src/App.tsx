@@ -5,6 +5,7 @@ import React, {
   SetStateAction,
   useRef
 } from "react";
+import { BrowserRouter as Router, Switch, Route } from "react-router-dom";
 import { ApolloProvider } from "@apollo/react-hooks";
 import { ApolloClient } from "apollo-client";
 import { createHttpLink } from "apollo-link-http";
@@ -18,7 +19,13 @@ import {
   AlertDialogContent,
   AlertDialogHeader,
   AlertDialogBody,
-  AlertDialogFooter
+  AlertDialogFooter,
+  Menu,
+  MenuButton,
+  MenuList,
+  MenuGroup,
+  MenuItem,
+  MenuDivider
 } from "@chakra-ui/core";
 import "./App.css";
 import { logout as doLogout } from "./lib";
@@ -63,7 +70,6 @@ const App: React.FC = () => {
   );
   const [error, updateError] = useState<any>(null);
   const updateAuth = (value: any) => {
-    console.log("UPDATE", { value, str: JSON.stringify(value) });
     sessionStorage.setItem("auth", JSON.stringify(value));
     handleAuth(value);
   };
@@ -81,40 +87,62 @@ const App: React.FC = () => {
     updateError(null);
   };
   return (
-    <ThemeProvider>
-      <ApolloProvider client={client}>
-        <AppContext.Provider value={{ auth, error, updateAuth, updateError }}>
-          <AlertDialog
-            isOpen={error}
-            leastDestructiveRef={okRef}
-            onClose={closeErrorDialog}
-          >
-            <AlertDialogOverlay />
-            <AlertDialogContent>
-              <AlertDialogHeader fontSize="lg" fontWeight="bold">
-                {error ? error.code : "Error"}
-              </AlertDialogHeader>
-              <AlertDialogBody>
-                {error ? error.message || error.code : "Error"}
-              </AlertDialogBody>
-              <AlertDialogFooter>
-                <Button ref={okRef} onClick={closeErrorDialog}>
-                  Ok
-                </Button>
-              </AlertDialogFooter>
-            </AlertDialogContent>
-          </AlertDialog>
-          <LoginCheck>
-            <div className="App">
-              <Button mt={4} variantColor="teal" onClick={logout}>
-                Logout
-              </Button>
-            </div>
-          </LoginCheck>
-        </AppContext.Provider>
-      </ApolloProvider>
-    </ThemeProvider>
+    <Router>
+      <ThemeProvider>
+        <ApolloProvider client={client}>
+          <AppContext.Provider value={{ auth, error, updateAuth, updateError }}>
+            <AlertDialog
+              isOpen={error}
+              leastDestructiveRef={okRef}
+              onClose={closeErrorDialog}
+            >
+              <AlertDialogOverlay />
+              <AlertDialogContent>
+                <AlertDialogHeader fontSize="lg" fontWeight="bold">
+                  {error ? error.code : "Error"}
+                </AlertDialogHeader>
+                <AlertDialogBody>
+                  {error ? error.message || error.code : "Error"}
+                </AlertDialogBody>
+                <AlertDialogFooter>
+                  <Button ref={okRef} onClick={closeErrorDialog}>
+                    Ok
+                  </Button>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
+            <LoginCheck>
+              <Menu>
+                <MenuButton as={Button}>Profile</MenuButton>
+                <MenuList>
+                  <MenuItem as="a" href="/">Home</MenuItem>
+                  <MenuItem>Payments </MenuItem>
+                  <MenuItem>Docs</MenuItem>
+                  <MenuItem onClick={logout}>Logout</MenuItem>
+                </MenuList>
+              </Menu>
+              <Switch>
+                <Route path="/about">
+                  <About />
+                </Route>
+                <Route path="/movie">
+                  <Movie />
+                </Route>
+              </Switch>
+            </LoginCheck>
+          </AppContext.Provider>
+        </ApolloProvider>
+      </ThemeProvider>
+    </Router>
   );
+};
+
+const About: React.FC = () => {
+  return <div>about</div>;
+};
+
+const Movie: React.FC = () => {
+  return <div>Movie</div>;
 };
 
 export default App;

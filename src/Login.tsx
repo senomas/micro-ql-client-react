@@ -28,12 +28,9 @@ export const Login: React.FC = () => {
           return errors;
         }}
         onSubmit={async (values: any, { setSubmitting }: any) => {
-          console.log("LOGIN", values);
           try {
             const res = await doLogin(values.username, values.password);
-            console.log("TOKEN", { res });
             updateAuth(res);
-            console.log("handleToken", { res });
           } catch (error) {
             const err = getGraphqlError(error);
             console.log("ERROR", { err });

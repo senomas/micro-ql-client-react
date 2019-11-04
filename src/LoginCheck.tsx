@@ -38,8 +38,6 @@ export const LoginCheck: React.FC<PropsWithChildren<any>> = ({ children }) => {
     }
   });
 
-  console.log("RENDER LOGIN-CHECK", { loading, error, data });
-
   if (loading) {
     return <div>Loading...</div>;
   }
