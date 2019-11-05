@@ -34,7 +34,7 @@ export const LoginCheck: React.FC<PropsWithChildren<any>> = ({ children }) => {
   const { auth, updateAuth } = useContext(AppContext);
   const { loading, error, data } = useQuery(queryMe, {
     variables: {
-      ts: `${Math.floor(Date.now() / 5000)}-${auth ? auth.token : ''}`
+      ts: `${Math.floor(Date.now() / 5000)}-${auth ? auth.token : null}`
     }
   });
 

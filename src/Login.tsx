@@ -1,12 +1,5 @@
 import React, { useContext } from "react";
 import { Formik } from "formik";
-import {
-  FormControl,
-  FormLabel,
-  FormErrorMessage,
-  Input,
-  Button
-} from "@chakra-ui/core";
 import { login as doLogin, getGraphqlError } from "./lib";
 import { AppContext } from "./App";
 
@@ -48,41 +41,24 @@ export const Login: React.FC = () => {
           isSubmitting
         }: any) => (
           <form onSubmit={handleSubmit}>
-            <FormControl
-              isRequired
-              isInvalid={errors.username && touched.username}
-            >
-              <FormLabel htmlFor="username">User name</FormLabel>
-              <Input
-                id="username"
-                onChange={handleChange}
-                onBlur={handleBlur}
-                value={values.username}
-              />
-              <FormErrorMessage>{errors.username}</FormErrorMessage>
-            </FormControl>
-            <FormControl
-              isRequired
-              isInvalid={errors.password && touched.password}
-            >
-              <FormLabel htmlFor="password">Password</FormLabel>
-              <Input
-                type="password"
-                id="password"
-                onChange={handleChange}
-                onBlur={handleBlur}
-                value={values.password}
-              />
-              <FormErrorMessage>{errors.password}</FormErrorMessage>
-            </FormControl>
-            <Button
-              mt={4}
-              variantColor="teal"
-              isLoading={isSubmitting}
-              type="submit"
-            >
+            <input
+              name="username"
+              onChange={handleChange}
+              onBlur={handleBlur}
+              value={values.username}
+            />
+            {errors.username && touched.username && errors.username}
+            <input
+              type="password"
+              name="password"
+              onChange={handleChange}
+              onBlur={handleBlur}
+              value={values.password}
+            />
+            {errors.password && touched.password && errors.password}
+            <button type="submit" disabled={isSubmitting}>
               Submit
-            </Button>
+            </button>
           </form>
         )}
       </Formik>

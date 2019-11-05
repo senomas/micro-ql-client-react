@@ -1,35 +1,21 @@
-import React, {
-  createContext,
-  useState,
-  Dispatch,
-  SetStateAction,
-  useRef
-} from "react";
-import { BrowserRouter as Router, Switch, Route } from "react-router-dom";
-import { ApolloProvider } from "@apollo/react-hooks";
-import { ApolloClient } from "apollo-client";
-import { createHttpLink } from "apollo-link-http";
-import { setContext } from "apollo-link-context";
-import { InMemoryCache } from "apollo-cache-inmemory";
-import {
-  ThemeProvider,
-  Button,
-  AlertDialog,
-  AlertDialogOverlay,
-  AlertDialogContent,
-  AlertDialogHeader,
-  AlertDialogBody,
-  AlertDialogFooter,
-  Menu,
-  MenuButton,
-  MenuList,
-  MenuGroup,
-  MenuItem,
-  MenuDivider
-} from "@chakra-ui/core";
-import "./App.css";
-import { logout as doLogout } from "./lib";
-import { LoginCheck } from "./LoginCheck";
+import './App.css';
+
+import { InMemoryCache } from 'apollo-cache-inmemory';
+import { ApolloClient } from 'apollo-client';
+import { setContext } from 'apollo-link-context';
+import { createHttpLink } from 'apollo-link-http';
+import React, { createContext, Dispatch, SetStateAction, useState } from 'react';
+import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
+
+import { ApolloProvider } from '@apollo/react-hooks';
+import { AppBar, Button, Toolbar, Typography } from '@material-ui/core';
+import { makeStyles } from '@material-ui/core/styles';
+
+import { ErrorDialog } from './ErrorDialog';
+import { logout as doLogout } from './lib';
+import { LoginCheck } from './LoginCheck';
+import { Movie } from './Movie';
+import { NavMenu } from './NavMenu';
 
 const httpLink = createHttpLink({
   uri: "http://localhost:5000/graphql"
@@ -64,13 +50,25 @@ export const AppContext = createContext<Context>({
   updateError: () => {}
 });
 
+const useStyles = makeStyles((theme: any) => ({
+  title: {
+    flexGrow: 1
+  }
+}));
+
 const App: React.FC = () => {
   const [auth, handleAuth] = useState<any>(
     JSON.parse(sessionStorage.getItem("auth") || "null")
   );
   const [error, updateError] = useState<any>(null);
-  const updateAuth = (value: any) => {
-    sessionStorage.setItem("auth", JSON.stringify(value));
+  const classes = useStyles();
+  const updateAuth = async (value: any) => {
+    if (value) {
+      sessionStorage.setItem("auth", JSON.stringify(value));
+    } else {
+      sessionStorage.clear();
+      await client.clearStore();
+    }
     handleAuth(value);
   };
   const logout = async (e: any) => {
@@ -80,69 +78,43 @@ const App: React.FC = () => {
       console.log("LOGOUT FAILED", { res });
     }
     sessionStorage.clear();
+    await client.clearStore();
     handleAuth(null);
-  };
-  const okRef = useRef(null);
-  const closeErrorDialog = () => {
-    updateError(null);
   };
   return (
     <Router>
-      <ThemeProvider>
-        <ApolloProvider client={client}>
-          <AppContext.Provider value={{ auth, error, updateAuth, updateError }}>
-            <AlertDialog
-              isOpen={error}
-              leastDestructiveRef={okRef}
-              onClose={closeErrorDialog}
-            >
-              <AlertDialogOverlay />
-              <AlertDialogContent>
-                <AlertDialogHeader fontSize="lg" fontWeight="bold">
-                  {error ? error.code : "Error"}
-                </AlertDialogHeader>
-                <AlertDialogBody>
-                  {error ? error.message || error.code : "Error"}
-                </AlertDialogBody>
-                <AlertDialogFooter>
-                  <Button ref={okRef} onClick={closeErrorDialog}>
-                    Ok
-                  </Button>
-                </AlertDialogFooter>
-              </AlertDialogContent>
-            </AlertDialog>
-            <LoginCheck>
-              <Menu>
-                <MenuButton as={Button}>Profile</MenuButton>
-                <MenuList>
-                  <MenuItem as="a" href="/">Home</MenuItem>
-                  <MenuItem>Payments </MenuItem>
-                  <MenuItem>Docs</MenuItem>
-                  <MenuItem onClick={logout}>Logout</MenuItem>
-                </MenuList>
-              </Menu>
-              <Switch>
-                <Route path="/about">
-                  <About />
-                </Route>
-                <Route path="/movie">
-                  <Movie />
-                </Route>
-              </Switch>
-            </LoginCheck>
-          </AppContext.Provider>
-        </ApolloProvider>
-      </ThemeProvider>
+      <ApolloProvider client={client}>
+        <AppContext.Provider value={{ auth, error, updateAuth, updateError }}>
+          <ErrorDialog />
+          <LoginCheck>
+            <AppBar position="static">
+              <Toolbar>
+                <NavMenu />
+                <Typography variant="h6" className={classes.title}>
+                  MicroQL
+                </Typography>
+                <Button color="inherit" onClick={logout}>
+                  Logout
+                </Button>
+              </Toolbar>
+            </AppBar>
+            <Switch>
+              <Route path="/about">
+                <About />
+              </Route>
+              <Route path="/movie">
+                <Movie />
+              </Route>
+            </Switch>
+          </LoginCheck>
+        </AppContext.Provider>
+      </ApolloProvider>
     </Router>
   );
 };
 
 const About: React.FC = () => {
   return <div>about</div>;
-};
-
-const Movie: React.FC = () => {
-  return <div>Movie</div>;
 };
 
 export default App;
